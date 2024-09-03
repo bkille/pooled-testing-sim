@@ -8,6 +8,14 @@ class Protocol:
     def brute_force(self, sample: TestSample, length) -> set:
         return {i for i in range(length) if sample.query(set([i]))}
 
+    def bf_pool(self, pool: list[int], sample: TestSample):
+        res = set()
+        for s in pool:
+            if sample.query([s]):
+                res.add(s)
+        
+        return res
+
     def pool(self, min: int, max: int, groups: int):
         total_numbers = max - min + 1
         base_group_size = total_numbers // groups
@@ -37,25 +45,13 @@ class Protocol:
         res = set()
         pools = self.pool(0, self.n - 1, 2)
 
-        if sample.query(pools[0]):
-            # Second pooling stage - split into 4 groups of 4
-            second_layer_pools = self.pool(0, (self.n - 1) // 2, 4)
-            
-            for pool in second_layer_pools:
-                if sample.query(pool):
-                    # Brute force
-                    for s in pool:
-                        if sample.query([s]):
-                            res.add(s)
-            
-        if sample.query(pools[1]):
-            # Second pooling stage - split into 4 groups of 4
-            second_layer_pools_1 = self.pool(self.n // 2, self.n - 1, 4)
-            for pool in second_layer_pools_1:
-                if sample.query(pool):
-                    for person in pool:
-                        if sample.query([person]):
-                            res.add(person)
+        for first_layer_pool in pools:
+            if sample.query(first_layer_pool):
+                second_layer_pool = self.pool(first_layer_pool[0], first_layer_pool[-1], 4)
+
+                for pool in second_layer_pool:
+                    if sample.query(pool):
+                        res = res.union(self.bf_pool(pool, sample))
 
         return res
 
