@@ -35,19 +35,32 @@ class Protocol:
         # a subset of 0 ... n-1
         #
         # sample.query([1, 3, 4]) will return True if any of 1, 3, or 4 are positive
-
-        return self.isolate_positives_helper(list(sample.__sample), sample)
+        idx = list(range(0, len(sample._TestSample__sample)))
+        return set(self.isolate_positives_helper(list(sample._TestSample__sample), idx, sample))
     
-    def isolate_positives_helper(self, sample, testSample):
-        if len(sample) == 0:
-            return set()
-        if testSample.query(sample):
+    def isolate_positives_helper(self, sample, indices, testSample):
+        #sample: list of patients
+        #testSample: object
+
+        # if len(sample) < 1:
+        #     return []
+        
+        maybePositives = []
+        for i in indices:
+            maybePositives.append(sample[i])
+
+        if testSample.query(indices):
             # split / binary search
-            if len(sample) == 1:
-                return sample
-            midpoint = len(sample) // 2
-            left = self.isolate_positives_helper(sample[:midpoint])
-            right = self.isolate_positives_helper(sample[midpoint:])
-            return left.union(right)
+            if len(maybePositives) == 1:
+                return indices
+            midpoint = len(maybePositives) // 2
+            # print("mid ", midpoint)
+            left = self.isolate_positives_helper(sample, indices[:midpoint], testSample)
+            right = self.isolate_positives_helper(sample, indices[midpoint:], testSample)
+            # print("left ", left, "right ", right)
+            if not left:
+                return right
+            return left + right
         else:
-            return set()
+            # print("all good ")
+            return []
