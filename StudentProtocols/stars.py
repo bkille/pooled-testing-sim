@@ -22,10 +22,59 @@ class Protocol:
         self.n = population_size
         self.p = prevalence
     
-    def helper(sample: TestSample, n):
+    def helper(self, sample: TestSample, idx: int, size: int, skip: int) -> set:
         # should return subset of sample
-        if not sample.query(set())
-        return []
+        if size == 1:
+            if sample.query(set([idx])):
+                return set([idx])
+            else:
+                return set([])
+        if size == 2:
+            if skip:
+                if sample.query(set([idx])):
+                    retset = set([idx])
+                    if sample.query(set([idx+ 1])):
+                        retset.add(idx + 1)
+                    return retset
+                else:
+                    return set([idx + 1])
+            else:
+                retset2 = set([])
+                if sample.query(set(range(idx, idx + 1))):
+                    retset2.add(idx)
+                if sample.query(set(range(idx + 1, idx + 2))):
+                    retset2.add(idx+1)
+                return retset2
+        if size > 2:
+            pos_mark = sample.query(set(range(idx, idx + size)))
+            if not pos_mark:
+                return set([])
+            half = (int) (size / 2 + size % 2)
+            sec_idx = idx + half
+            sec_size = (int) (size / 2)
+            if half == 2:
+                retset3 = self.helper(sample, idx, half, 0)
+                if len(retset3) == 0:
+                    if size == 3:
+                        retset3.add(idx + 2)
+                    if size == 4:
+                        retset3 = retset3.union(self.helper(sample, idx + 2, half, 1))
+                    return retset3
+                else:
+                    retset3 = retset3.union(self.helper(sample, idx + 2, size - half, 0))
+                    return retset3
+            if (size == 5):
+                retset4 = self.helper(sample, idx, half, 0)
+                if len(retset4) == 0:
+                    retset4 = retset4.union(self.helper(sample, idx + 3, 2, 1))
+                else:
+                    retset4 = retset4.union(self.helper(sample, idx + 3, 2, 0))
+                return retset4
+            # general case
+            retset5 = self.helper(sample, idx, half, 0)
+            retset5 = retset5.union(self.helper(sample, idx + half, size - half, 0))
+            return retset5
+
 
     def isolate_positives(self, sample: TestSample) -> set:
         # Implement your strategy here.
@@ -40,17 +89,9 @@ class Protocol:
         # a subset of 0 ... n-1
         #
         # sample.query([1, 3, 4]) will return True if any of 1, 3, or 4 are positive
-        indices = [i for i in range(self.n)]
-        
-        if not sample.query(set(indices)):
-            return set([])
-        elif sample.size() <= 2:
-            if not sample.query(set(indices[0])):
-                return set(indices[1])    
-        else:
-            return self.isolate_positives(sample[])
+        retset = self.helper(sample, 0, self.n, 0)
     
-        return {i for i in range(self.n) if sample.query(set([i]))}
+        return retset
     
     
 
