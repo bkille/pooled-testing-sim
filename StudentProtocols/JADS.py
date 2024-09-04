@@ -16,6 +16,7 @@
 # Create a Pull Request whenever you're ready to test your method against others
 
 from .utils import TestSample
+import math
 
 class Protocol:
     def __init__(self, population_size: int, prevalence: float):
@@ -37,13 +38,10 @@ class Protocol:
         # a subset of 0 ... n-1
         #
         # sample.query([1, 3, 4]) will return True if any of 1, 3, or 4 are positive
+        # k = math.ceil(math.sqrt(self.n))
+        k = 2
 
-
-        return isolate_positives_helper(self, sample, 0, self.n-1, 2, 2)
-
-
-
-        # return {i for i in range(self.n) if sample.query(set([i]))}
+        return self.isolate_positives_helper(sample, 0, self.n-1, k, 2)
 
     def isolate_positives_helper(self, sample: TestSample, start, end, k, l) -> set:
         current_n = end - start + 1
@@ -52,10 +50,14 @@ class Protocol:
             return {i for i in range(start, end+1) if sample.query(set([i]))}
         else:
             # divide into k chunks
-            chunk_size = current_n / k
+            cur_samples = [i for i in range(start, end+1)]
+            has_positive = sample.query(set(cur_samples))
+            
             positives = set()
-            for i in range(k):
-                cur_start = i*chunk_size + start
-                cur_end = min(end, cur_start + chunk_size)
-                positives.add(isolate_positives_helper(self, sample, cur_start, cur_end, k, l))
+            if has_positive:
+                chunk_size = math.ceil(current_n / k)
+                for i in range(k):
+                    cur_start = i*chunk_size + start
+                    cur_end = min(end, cur_start + chunk_size-1)
+                    positives.update(self.isolate_positives_helper(sample, cur_start, cur_end, k, l))
             return positives
