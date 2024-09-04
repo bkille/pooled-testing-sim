@@ -21,7 +21,28 @@ class Protocol:
     def __init__(self, population_size: int, prevalence: float):
         self.n = population_size
         self.p = prevalence
+        
+    def divide_population(self, n, k): 
+        
+        samples = [set() for _ in range(k)]
+        for i in range(n):
+                samples[i % k].add(i)
+        
+        return samples
     
+    
+    def divide_into_pairs(self, input_set): 
+        
+        input_list = list(input_set)
+        
+        pairs = []
+        
+        for i in range(0, len(input_list), 2): 
+            pair = set(input_list[i:i+2])
+            pairs.append(pair)
+            
+        return pairs
+
     def isolate_positives(self, sample: TestSample) -> set:
         # Implement your strategy here.
         # 
@@ -35,4 +56,30 @@ class Protocol:
         # a subset of 0 ... n-1
         #
         # sample.query([1, 3, 4]) will return True if any of 1, 3, or 4 are positive
-        return {i for i in range(self.n) if sample.query(set([i]))}
+        
+        sample_sets_of_8 = self.divide_population(self.n, 4)
+        
+        # Initialize an empty set to store positive indices
+        positive_ids = set()
+        
+        # Iterate over each set
+        for s1 in sample_sets_of_8:
+            
+            # If querying the set returns True, check each pairs in the set 
+            if sample.query(set(s1)):
+                
+                # Divide sets of 8 into sets of 2
+                sample_sets_of_2 = self.divide_into_pairs(s1)
+                    
+                for s2 in sample_sets_of_2: 
+                    
+                    # If a sample in this set of 2 is positive then, check each sample
+                    if sample.query(set(s2)): 
+                        
+                        for s3 in s2: 
+                            
+                            # If sample is positive add to positive ids set
+                            if sample.query(set([s3])): 
+                                positive_ids.add(s3)
+        
+        return positive_ids
