@@ -60,7 +60,7 @@ class Protocol:
                 # If right half contains pos. samples, recurse into right half
                 _binary_splitting_recursive(right_idxs)
 
-        if self.p >= 0.5: ## if probability is very high, use baseline method
+        if self.p >= 0.2: ## if probability is very high, use baseline method
             return {i for i in range(self.n) if sample.query(set([i]))}
         elif self.p < (1/len(sample_indices)): ## If probability is smaller than total batch size
             if sample.query(sample_indices): ## Check batch
