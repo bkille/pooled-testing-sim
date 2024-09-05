@@ -36,6 +36,10 @@ class Protocol:
 
         def _binary_splitting_recursive(sample_indices):
             '''Binary splitting method'''
+            if len(sample_indices) == 1:    # BaseCase 1 sample remaining
+                if sample.query(sample_indices):    # Given sample is positive, add index to true_samples
+                    true_samples.add(sample_indices[0])
+                return
             # Splitting indices list into 2 halves 
             mid = len(sample_indices) // 2
             left_idxs = sample_indices[:mid]    # Left-half indices
