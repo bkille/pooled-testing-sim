@@ -62,7 +62,7 @@ class ProtocolTester:
         self.binom_rv = stats.bernoulli(prevalence)
         self.proto = protocol_class(population_size, prevalence)
 
-    # @timeout(seconds=10)
+    @timeout(seconds=10)
     def run_protocol(self, num_trials=1, verbose=True):
         tests_used = []
         for trial_idx in range(num_trials):
