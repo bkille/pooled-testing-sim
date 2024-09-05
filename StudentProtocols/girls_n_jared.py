@@ -34,7 +34,7 @@ class Protocol:
                 return set()
             #Base case len=1 
             elif high-low == 1:
-                return set(low)
+                return {low}
             #Recursive step 
             else:
                 midpoint = (low + high) // 2
